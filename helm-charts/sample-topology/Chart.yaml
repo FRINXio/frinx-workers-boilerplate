@@ -1,0 +1,12 @@
+apiVersion: v2
+name: sample-topology
+description: Kubernetes deployment of sample-topology
+type: application
+version: 6.1.0
+maintainers:
+  - name: FRINX
+dependencies:
+  - condition: sample-topology.enabled
+    name: sample-topology
+    repository: https://FRINXio.github.io/helm-charts
+    version: 3.1.0
