@@ -1,107 +1,35 @@
 # frinx-workers-boilerplate
 
-- helm-chart:   Frinx Machine installation scripts
-- worker:   Python worker project
+This repository provides an easy setup for the [workflow manager worker](https://docs.frinx.io/frinx-workflow-manager/python-sdk/).
 
-## Frinx Machine installation
+### Prerequisities
 
-### Cluster setup
+Before you begin, ensure you have the following tools installed:
 
-Start minikube with recommended settings
-```bash
-minikube start --cpus=max --memory=24G --addons=ingress
-```
+- `python`: Version 3.10 or higher
+- `poetry`: Python packaging and dependency management tool
+- `frinx-machine`: Follow the instructions at [Frinx Machine GitHub](https://github.com/FRINXio/gitops-boilerplate)
 
-Get minikube ip
+## Quick Start
 
-```bash
-minikube ip
-
-192.168.49.2
-```
-
-Add to your /etc/hosts. Change to your minikube ip
+Ensure you are using Python version 3.10 or higher. 
+Set up your environment and install dependencies with `poetry`:
 
 ```bash
-#/etc/hosts
-192.168.49.2 krakend.127.0.0.1.nip.io workflow-manager.127.0.0.1.nip.io
-```
-
-```bash
-kubectl create namespace frinx
-```
-
-### Helm Charts installation
-
-Create a kubernetes Docker registry secret for pulling images from private registry:
-
-```bash
-# PLACEHOLDERS must be replaced with user credentials
-kubectl create secret -n frinx docker-registry regcred \
-    --docker-server="https://index.docker.io/v1/" \
-    --docker-username="<PLACEHOLDER>" \
-    --docker-password="<PLACEHOLDER>"
-```
-
-For more info about accessing private images, visit [Download Frinx Uniconfig](https://docs.frinx.io/frinx-uniconfig/getting-started/#download-frinx-uniconfig)
-
-
-Frinx Machine operators
-```bash
-helm dependency build ./helm-charts/frinx-machine-operators
-helm upgrade --install -n frinx frinx-machine-operators ./helm-charts/frinx-machine-operators
-```
-
-Frinx Machine
-```bash
-helm dependency build ./helm-charts/frinx-machine
-helm upgrade --install -n frinx frinx-machine ./helm-charts/frinx-machine
-```
-
-In case, you want to work with simulated devices, run sample-topology as well
-
-Sample Topology
-```bash
-helm dependency build ./helm-charts/sample-topology
-helm upgrade --install -n frinx sample-topology ./helm-charts/sample-topology
-```
-
-### Custom Worker customization
-
-Change image repositor and tag to address your image
-
-```bash
-# helm-charts/custom-worker/values.yaml
-  image:
-    repository: frinx/frinx-demo-workflows
-    tag: "6.0.0"
-```
-
-You can import your custom image via:
-
-```bash
-minikube image load your/image:tag
-```
-
-## Custom worker setup
-
-### Create project
-
-```bash
+# Use python version 3.10 or higher
 poetry env use python3.10
 poetry install
 ```
 
 ### Start project
 
-```bash
-poetry run python3 main.py
-```
+Use Krakend and worker ingress for local development. 
+Override default SDK environment variables with your own. 
+Note that these environment variables should not be used in a Kubernetes deployment.
 
-### Configure rbac
+Use a config/env_local.template file and configure it as follows:
 
 ```bash
-# .env
 # CONFIGURE CONDUCTOR CLIENT URL
 CONDUCTOR_URL_BASE=http://workflow-manager.127.0.0.1.nip.io/api
 # USE KRAKEND ENDPOINTS To ACCESS API  
@@ -115,38 +43,9 @@ UNICONFIG_ZONE_URL_TEMPLATE=http://krakend.127.0.0.1.nip.io/api/{uc}
 X_AUTH_USER_GROUP=FRINXio
 ```
 
-### Configure Ingress for services
+Export the environment variables and run the main script:
 
-```yaml
-
-frinx-machine:
-  krakend:
-    ingress:
-      enabled: true
-      className: nginx
-      annotations:
-        nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-        nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600"
-        nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
-        nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
-      hosts:
-        - host: krakend.127.0.0.1.nip.io
-          paths:
-            - path: "/"
-              pathType: ImplementationSpecific
-
-  workflow-manager:
-    ingress:
-      enabled: true
-      hosts:
-        - host: workflow-manager.127.0.0.1.nip.io
-          paths:
-            - path: "/"
-              pathType: ImplementationSpecific
-      schellarHosts:
-        - host: workflow-manager-schellar.127.0.0.1.nip.io
-          paths:
-            - path: "/"
-              pathType: ImplementationSpecific
+```bash
+export $(cat config/env_local.template | sed -e /^$/d -e /^#/d | xargs)
+poetry run python3 main.py
 ```
-

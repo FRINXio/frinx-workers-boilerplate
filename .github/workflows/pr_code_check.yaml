@@ -1,0 +1,49 @@
+name: Check code quality
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  check:
+    name: Test code quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    strategy:
+      matrix:
+        python-version: ['3.11']
+        poetry-version: ['1.7.1']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install poetry
+        uses: abatilo/actions-poetry@v2
+        with:
+          poetry-version: ${{ matrix.poetry-version }}
+
+      - name: Install package dependencies
+        run: |
+          export POETRY_INSTALLER_PARALLEL=false
+          poetry install
+
+      - name: Run mypy
+        run: |
+          poetry run mypy .
+
+      - name: Run ruff
+        run: |
+          poetry run ruff check .
+
+      - name: Run pyright
+        run: |
+          poetry run pyright .
