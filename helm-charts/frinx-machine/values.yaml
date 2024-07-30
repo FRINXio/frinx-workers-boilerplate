@@ -28,8 +28,10 @@ frinx-machine:
             - path: "/"
               pathType: ImplementationSpecific
 
+  uniconfig:
     image:
       repository: "frinxio/uniconfig"
+      tag: "6.1.2"
 
   performance-monitor:
     image:
