@@ -1,12 +1,7 @@
 import logging
-import os
 
 from frinx.client.frinx_conductor_wrapper import FrinxConductorWrapper
-from frinx.common.logging import logging_common
-from frinx.common.logging.logging_common import File
-from frinx.common.logging.logging_common import Handlers
-from frinx.common.logging.logging_common import LoggerConfig
-from frinx.common.logging.logging_common import Root
+from frinx.common.logging.config import LoggerConfig
 
 
 def register_tasks(conductor_client: FrinxConductorWrapper) -> None:
@@ -82,12 +77,8 @@ def register_workflows() -> None:
 
 def main() -> None:
 
-    logging_common.configure_logging(
-        LoggerConfig(
-            root=Root(level=os.environ.get("LOG_LEVEL", "INFO").upper(), handlers=["console", "file"]),
-            handlers=Handlers(file=File(filename="/tmp/workers.log"))
-        )
-    )
+    LoggerConfig().setup_logging()
+
     from frinx.common.telemetry.metrics import Metrics
     from frinx.common.telemetry.metrics import MetricsSettings
 

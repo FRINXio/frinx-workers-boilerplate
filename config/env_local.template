@@ -1,11 +1,2 @@
-# CONFIGURE CONDUCTOR CLIENT URL
-CONDUCTOR_URL_BASE=http://workflow-manager.127.0.0.1.nip.io/api
-# USE KRAKEND ENDPOINTS To ACCESS API  
-SCHELLAR_URL_BASE=http://krakend.127.0.0.1.nip.io/api/schedule
-UNICONFIG_URL_BASE=http://krakend.127.0.0.1.nip.io/api/uniconfig
-INVENTORY_URL_BASE=http://krakend.127.0.0.1.nip.io/api/inventory
-RESOURCE_MANAGER_URL_BASE=http://krakend.127.0.0.1.nip.io/api/resource
-KRAKEND_URL_BASE=http://krakend.127.0.0.1.nip.io
-UNICONFIG_ZONE_URL_TEMPLATE=http://krakend.127.0.0.1.nip.io/api/{uc}
 # WORKER RBAC
 X_AUTH_USER_GROUP=FRINXio
