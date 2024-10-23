@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "frinx-workers-boilerplate"
-version = "6.1.0"
+version = "6.1.0b"
 description = ""
 authors = ["Jozef Volak <jvolak@frinx.io>"]
 readme = "README.md"
@@ -8,28 +8,30 @@ packages = [
     { include = "app" },
 ]
 
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[tool.poetry.plugins."poetry.application.plugin"]
+clone-packages = "scripts.clone_plugin:ClonePlugin"
+
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.12"
+poetry = "^1.8.2"
 python-dotenv = "^1.0.0"
-frinx-inventory-worker = {git = "https://github.com/FRINXio/frinx-services-python-workers.git", tag = "6.1.0", subdirectory = "inventory/python"}
-frinx-schellar-worker = {git = "https://github.com/FRINXio/frinx-services-python-workers.git", tag = "6.1.0", subdirectory = "schellar/python"}
-frinx-uniconfig-worker = {git = "https://github.com/FRINXio/frinx-services-python-workers.git", tag = "6.1.0", subdirectory = "uniconfig/python"}
-frinx-resource-manager-worker = {git = "https://github.com/FRINXio/frinx-services-python-workers.git", tag = "6.1.0", subdirectory = "resource-manager/python"}
-frinx-topology-discovery-worker = {git = "https://github.com/FRINXio/frinx-services-python-workers.git", tag = "6.1.0", subdirectory = "topology-discovery/python"}
-frinx-http-worker = {git = "https://github.com/FRINXio/frinx-services-python-workers.git", tag = "6.1.0", subdirectory = "misc/python/http"}
-frinx-kafka-worker = {git = "https://github.com/FRINXio/frinx-services-python-workers.git", tag = "6.1.0", subdirectory = "misc/python/kafka"}
-frinx-influxdb-worker = {git = "https://github.com/FRINXio/frinx-services-python-workers.git", tag = "6.1.0", subdirectory = "misc/python/influxdb"}
-frinx-conductor-system-test-worker = {git = "https://github.com/FRINXio/frinx-services-python-workers.git", tag = "6.1.0", subdirectory = "misc/python/conductor-system-test"}
-frinx-python-lambda = {git = "https://github.com/FRINXio/frinx-services-python-workers.git", tag = "6.1.0", subdirectory = "misc/python/python-lambda"}
+frinx-python-sdk = "^2.4.0"
+frinx-uniconfig-worker = { git = "ssh://git@github.com/FRINXio/frinx-services-python-workers.git", rev = "7.0.0", subdirectory = "uniconfig/python" }
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0"
 mypy = "^1"
 pyright = "^1"
+
+[tool.poetry-clone-local]
+frinx-python-sdk = { git = "https://github.com/FRINXio/frinx-python-sdk.git", rev = "v2.4.0" }
+vfz-core = { git = "ssh://git@github.com/FRINXio/vfz-core.git", branch = "setup-from-vfz-code" }
+frinx-uniconfig-worker = { git = "ssh://git@github.com/FRINXio/frinx-services-python-workers.git", rev = "7.0.0", subdirectory = "uniconfig/python" }
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
 
 [tool.pyright]
 reportGeneralTypeIssues = "none"

@@ -1,5 +1,8 @@
+import argparse
 import logging
+import pathlib
 
+from dotenv import load_dotenv
 from frinx.client.frinx_conductor_wrapper import FrinxConductorWrapper
 from frinx.common.logging.config import LoggerConfig
 
@@ -7,77 +10,37 @@ from frinx.common.logging.config import LoggerConfig
 def register_tasks(conductor_client: FrinxConductorWrapper) -> None:
     logging.info("Register tasks")
 
-    def _uniconfig_workers() -> None:
-        from frinx_worker.uniconfig.cli_network_topology import CliNetworkTopology
-        from frinx_worker.uniconfig.connection_manager import ConnectionManager
-        from frinx_worker.uniconfig.snapshot_manager import SnapshotManager
-        from frinx_worker.uniconfig.structured_data import StructuredData
-        from frinx_worker.uniconfig.uniconfig_manager import UniconfigManager
+    from frinx_worker.uniconfig.cli_network_topology import CliNetworkTopology
+    from frinx_worker.uniconfig.connection_manager import ConnectionManager
+    from frinx_worker.uniconfig.snapshot_manager import SnapshotManager
+    from frinx_worker.uniconfig.structured_data import StructuredData
+    from frinx_worker.uniconfig.uniconfig_manager import UniconfigManager
 
-        UniconfigManager().register(conductor_client=conductor_client)
-        SnapshotManager().register(conductor_client=conductor_client)
-        ConnectionManager().register(conductor_client=conductor_client)
-        StructuredData().register(conductor_client=conductor_client)
-        CliNetworkTopology().register(conductor_client=conductor_client)
+    from app.workers.boilerplate_worker import SumWorker
 
-    def _http_workers() -> None:
-        from frinx_worker.http import HTTPWorkersService
-        HTTPWorkersService().register(conductor_client=conductor_client)
+    SumWorker().register(conductor_client=conductor_client)
 
-    def _inventory_workers() -> None:
-        from frinx_worker.inventory import InventoryService
-        InventoryService().register(conductor_client=conductor_client)
-
-    def _schellar_workers() -> None:
-        from frinx_worker.schellar import Schellar
-        Schellar().register(conductor_client=conductor_client)
-
-    def _conductor_test() -> None:
-        from frinx_worker.conductor_system_test import TestWorker
-        TestWorker().register(conductor_client=conductor_client)
-
-    def _misc_workers() -> None:
-        from frinx_worker.python_lambda import PythonLambda
-        PythonLambda().register(conductor_client=conductor_client)
-
-    def _local_worker() -> None:
-        from app.workers.boilerplate_worker import SumWorker
-        SumWorker().register(conductor_client=conductor_client)
-
-    _uniconfig_workers()
-    _http_workers()
-    _inventory_workers()
-    _schellar_workers()
-    _conductor_test()
-    _misc_workers()
-    _local_worker()
+    UniconfigManager().register(conductor_client=conductor_client)
+    SnapshotManager().register(conductor_client=conductor_client)
+    ConnectionManager().register(conductor_client=conductor_client)
+    StructuredData().register(conductor_client=conductor_client)
+    CliNetworkTopology().register(conductor_client=conductor_client)
 
 
 def register_workflows() -> None:
     logging.info("Register workflows")
 
-    from frinx_worker.inventory.workflows import Inventory
-    Inventory().register(overwrite=True)
-
-    from frinx_worker.schellar.workflows.schellar import SchellarWorkflows
-    SchellarWorkflows().register(overwrite=True)
-
-    from frinx_worker.http.workflows.post_to_slack import PostToSlackService
-    PostToSlackService().register(overwrite=True)
-
-    from frinx_worker.http.workflows.generic import GenericRequestService
-    GenericRequestService().register(overwrite=True)
-
-    from frinx_worker.conductor_system_test.workflows import TestWorkflows
-    TestWorkflows().register(overwrite=True)
-
     from app.workflows.boilerplate_workflow import SumWorkflow
+    from app.workflows.uniconfig_wfs import UcWorkflows
+
     SumWorkflow().register(overwrite=True)
+    UcWorkflows().register(overwrite=True)
 
-
-def main() -> None:
-
+def main(env_file_path: pathlib.Path | None = None) -> None:
     LoggerConfig().setup_logging()
+
+    if env_file_path and env_file_path.exists():
+        load_dotenv(env_file_path)
 
     from frinx.common.telemetry.metrics import Metrics
     from frinx.common.telemetry.metrics import MetricsSettings
@@ -101,4 +64,12 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--env_file",
+        nargs="?",
+        type=pathlib.Path,
+        help="Path to environment file. When not set, default values are used.",
+    )
+    args = parser.parse_args()
+    main(args.env_file)

@@ -1,4 +1,5 @@
 from frinx.common.conductor_enums import TaskResultStatus
+from frinx.common.logging.root_logger import logger
 from frinx.common.type_aliases import ListAny
 from frinx.common.worker.task_def import TaskDefinition
 from frinx.common.worker.task_def import TaskInput
@@ -24,6 +25,10 @@ class SumWorker(WorkerImpl):
 
     def execute(self, worker_input: WorkerInput) -> TaskResult[WorkerOutput]:
         result = worker_input.num_a + worker_input.num_b
+
+        logger.info("This is an INFO message from the root_logger")
+        logger.debug("This is a DEBUG message from the root_logger")
+        logger.warning("This is a WARNING message from the root_logger")
 
         return TaskResult(
             status=TaskResultStatus.COMPLETED,

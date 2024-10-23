@@ -18,6 +18,7 @@ class SumWorkflow(WorkflowImpl):
     timeout_policy: TimeoutPolicy = TimeoutPolicy.TIME_OUT_WORKFLOW
 
     class WorkflowInput(WorkflowImpl.WorkflowInput):
+
         num_a: WorkflowInputField = WorkflowInputField(
             name="num_a",
             frontend_default_value=5,
