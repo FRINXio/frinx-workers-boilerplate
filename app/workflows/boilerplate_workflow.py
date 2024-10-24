@@ -6,6 +6,7 @@ from frinx.common.workflow.workflow import FrontendWFInputFieldType
 from frinx.common.workflow.workflow import WorkflowImpl
 from frinx.common.workflow.workflow import WorkflowInputField
 
+from app.workers.boilerplate_worker import DivisionFailureWorker
 from app.workers.boilerplate_worker import SumWorker
 
 
@@ -18,7 +19,6 @@ class SumWorkflow(WorkflowImpl):
     timeout_policy: TimeoutPolicy = TimeoutPolicy.TIME_OUT_WORKFLOW
 
     class WorkflowInput(WorkflowImpl.WorkflowInput):
-
         num_a: WorkflowInputField = WorkflowInputField(
             name="num_a",
             frontend_default_value=5,
@@ -37,7 +37,6 @@ class SumWorkflow(WorkflowImpl):
         sum: str
 
     def workflow_builder(self, workflow_inputs: WorkflowInput) -> None:
-
         sum_task = SimpleTask(
             name=SumWorker,
             task_reference_name="sum",
@@ -55,3 +54,31 @@ class SumWorkflow(WorkflowImpl):
         self.output_parameters = self.WorkflowOutput(
             sum=sum_task.output_ref("sum")
         )
+
+
+class DemoFailureWorkflow(WorkflowImpl):
+    name: str = "Division_workflow"
+    version: int = 1
+    description: str = "Workflow demonstrating failure due to division by zero."
+    labels: ListStr = ["TEST"]
+    timeout_seconds: int = 60 * 5
+    timeout_policy: TimeoutPolicy = TimeoutPolicy.TIME_OUT_WORKFLOW
+
+    class WorkflowInput(WorkflowImpl.WorkflowInput):
+        ...
+
+    class WorkflowOutput(WorkflowImpl.WorkflowOutput):
+        ...
+
+    def workflow_builder(self, workflow_inputs: WorkflowInput) -> None:
+        division_task = SimpleTask(
+            name=DivisionFailureWorker,
+            task_reference_name="division_task",
+            input_parameters=SimpleTaskInputParameters(
+                root=dict()
+            )
+        )
+
+        self.tasks = [
+            division_task
+        ]

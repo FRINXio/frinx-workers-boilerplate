@@ -16,9 +16,8 @@ def register_tasks(conductor_client: FrinxConductorWrapper) -> None:
     from frinx_worker.uniconfig.structured_data import StructuredData
     from frinx_worker.uniconfig.uniconfig_manager import UniconfigManager
 
+    from app.workers.boilerplate_worker import DivisionFailureWorker
     from app.workers.boilerplate_worker import SumWorker
-
-    SumWorker().register(conductor_client=conductor_client)
 
     UniconfigManager().register(conductor_client=conductor_client)
     SnapshotManager().register(conductor_client=conductor_client)
@@ -26,14 +25,18 @@ def register_tasks(conductor_client: FrinxConductorWrapper) -> None:
     StructuredData().register(conductor_client=conductor_client)
     CliNetworkTopology().register(conductor_client=conductor_client)
 
+    SumWorker().register(conductor_client=conductor_client)
+    DivisionFailureWorker().register(conductor_client=conductor_client)
 
 def register_workflows() -> None:
     logging.info("Register workflows")
 
+    from app.workflows.boilerplate_workflow import DemoFailureWorkflow
     from app.workflows.boilerplate_workflow import SumWorkflow
     from app.workflows.uniconfig_wfs import UcWorkflows
 
     SumWorkflow().register(overwrite=True)
+    DemoFailureWorkflow().register(overwrite=True)
     UcWorkflows().register(overwrite=True)
 
 def main(env_file_path: pathlib.Path | None = None) -> None:
